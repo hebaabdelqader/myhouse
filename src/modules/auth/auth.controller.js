@@ -12,11 +12,11 @@ if(user){
     return res.status(409).json({message:"email already exist"});
 } 
 const hashedPassword=await bcrypt.hash(password,parseInt(process.env.SALT_ROUND));
-const {secure_url,public_id}=await cloudinary.uploader.upload(req.file.path,{
-    folder:`${process.env.APP_NAME}/CATEGORIES`})
+//const {secure_url,public_id}=await cloudinary.uploader.upload(req.file.path,{
+  //  folder:`${process.env.APP_NAME}/CATEGORIES`}),image:{secure_url,public_id}
     const token= jwt.sign({email},process.env.CONFIRMEMAILSECRET);
     await sendEmail(email,"confarim email",`<a href='${req.protocol}://${req.headers.host}/auth/confirmEmail/${token}'>verify<a>`)
-const createUser=await userModel.create({userName,email,password:hashedPassword,image:{secure_url,public_id}});
+const createUser=await userModel.create({userName,email,password:hashedPassword});
    return res.status(201).json({message:'succ',createUser});
 }catch(err){
 return res.json(err);

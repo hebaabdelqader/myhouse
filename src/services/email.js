@@ -12,7 +12,7 @@ const transport= nodemailer.createTransport({
 });
 
   const info = await transport.sendMail({
-    from:`t-shop <${process.env.EMAILSENDER}>`,
+    from:`myhous <${process.env.EMAILSENDER}>`,
     to,
     subject,
     html
