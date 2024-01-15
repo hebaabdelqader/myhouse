@@ -43,7 +43,9 @@ const userSchema= new Schema({
     Sendcode:{
         type:String,
         default:null
-    }
+    }, changePasswordTime: {
+        type: Date,
+      },
 },
 {
     timestamps:true,

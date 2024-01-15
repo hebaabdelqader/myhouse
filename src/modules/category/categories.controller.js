@@ -1,12 +1,18 @@
 import slugify from "slugify";
 import cloudinary from "../../services/cloudinary.js";
 import categoryModel from "../../../DB/models/category.js";
-
-export const getCategories= async(req,res)=>{
-    const categories=await categoryModel.find().populate('subcategory');
-    return res.status(200).json({messages:"success",categories})
-}
-
+import { pagination } from "../../services/pagination.js";
+import productModel from "../../../DB/models/product.model.js";
+import subcategoryModel from "../../../DB/models/subCategory.model.js";
+export const getCategories = async (req, res) => {
+    const { skip, limit } = pagination(req.query.page, req.query.limit);
+    const categories = await categoryModel
+      .find()
+      .skip(skip)
+      .limit(limit)
+      .populate("subcategory");
+    return res.status(200).json({ message: "success", categories });
+  };
 export const createCategories= async(req,res)=>{
     const name=req.body.name.toLowerCase();
     if(await categoryModel.findOne({name})){
@@ -60,13 +66,25 @@ return res.status(500).json({message:"error",err:err.stack});
     
 }
 };
+export const deleteCategory = async (req, res, next) => {
+    const { categoryId } = req.params;
+    const category = await categoryModel.findByIdAndDelete(categoryId);
+    if (!category) {
+      return next(new Error(`category not found`, { cause: 404 }));
+    }
+    await productModel.deleteMany({ categoryId });
+    await subcategoryModel.deleteMany({ categoryId });
+    return res.status(200).json({ message: "success" });
+  };
 
-
-export const getAciveCategory= async(req,res)=>{
-    try{
-        const category=await categoryModel.find({status:'Active'}).select('name')
-     return res.status(200).json({message:"success",category})
-    }catch(err){
-        return res.json({message:"error",err:err.stack});
-    }    
-}
+export const getActiveCategory = async (req, res) => {
+    const { skip, limit } = pagination(req.query.page, req.query.limit);
+    const categories = await categoryModel
+      .find({ status: "Active" })
+      .skip(skip)
+      .limit(limit)
+      .select("name image");
+    return res
+      .status(200)
+      .json({ message: "success", count: categories.length, categories });
+  };
